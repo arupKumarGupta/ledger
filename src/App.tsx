@@ -30,7 +30,7 @@ import AddExpenseDialog from './components/AddExpenseDialog';
 import ExpensesList from './components/ExpensesList';
 import ExpenseHistory from './components/ExpenseHistory';
 import { ExpenseHead, ExpenseEntry, ExpenseData, ExpenseWithStats } from './types';
-import { loadData, saveData, exportDataToJSON, importDataFromJSON } from './utils/storage';
+import { loadData, saveData, exportDataToJSON, importDataFromJSON, mergeImportedData } from './utils/storage';
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -175,8 +175,30 @@ function App() {
     if (file) {
       importDataFromJSON(file)
         .then((importedData) => {
-          setData(importedData);
-          showSnackbar('Data imported successfully');
+          const { mergedData, stats } = mergeImportedData(data, importedData);
+          setData(mergedData);
+          
+          // Create detailed success message
+          const messages = [];
+          if (stats.addedHeads > 0) messages.push(`${stats.addedHeads} expense head(s)`);
+          if (stats.addedEntries > 0) messages.push(`${stats.addedEntries} entry/entries`);
+          
+          const skippedMessages = [];
+          if (stats.skippedHeads > 0) skippedMessages.push(`${stats.skippedHeads} duplicate head(s)`);
+          if (stats.skippedEntries > 0) skippedMessages.push(`${stats.skippedEntries} duplicate entry/entries`);
+          
+          let message = 'Import completed: ';
+          if (messages.length > 0) {
+            message += `Added ${messages.join(' and ')}`;
+          } else {
+            message += 'No new items';
+          }
+          
+          if (skippedMessages.length > 0) {
+            message += `. Skipped ${skippedMessages.join(' and ')}`;
+          }
+          
+          showSnackbar(message, 'success');
         })
         .catch((error) => {
           showSnackbar('Failed to import data: ' + error.message, 'error');

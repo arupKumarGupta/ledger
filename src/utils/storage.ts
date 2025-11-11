@@ -69,3 +69,50 @@ export const importDataFromJSON = (file: File): Promise<ExpenseData> => {
   });
 };
 
+export const mergeImportedData = (
+  currentData: ExpenseData,
+  importedData: ExpenseData
+): { mergedData: ExpenseData; stats: { addedHeads: number; addedEntries: number; skippedHeads: number; skippedEntries: number } } => {
+  // Create uniqueness keys for expense heads using name + category + totalAmount
+  const existingHeadKeys = new Set(
+    currentData.expenseHeads.map(head => 
+      `${head.name}|${head.category}|${head.totalAmount}`
+    )
+  );
+  
+  // Create uniqueness keys for expense entries using expenseHeadId + amountPaid + date
+  const existingEntryKeys = new Set(
+    currentData.expenseEntries.map(entry => 
+      `${entry.expenseHeadId}|${entry.amountPaid}|${entry.date}`
+    )
+  );
+  
+  // Filter out duplicate expense heads based on concatenated key
+  const newExpenseHeads = importedData.expenseHeads.filter(head => {
+    const key = `${head.name}|${head.category}|${head.totalAmount}`;
+    return !existingHeadKeys.has(key);
+  });
+  
+  // Filter out duplicate expense entries based on concatenated key
+  const newExpenseEntries = importedData.expenseEntries.filter(entry => {
+    const key = `${entry.expenseHeadId}|${entry.amountPaid}|${entry.date}`;
+    return !existingEntryKeys.has(key);
+  });
+  
+  // Merge data
+  const mergedData: ExpenseData = {
+    expenseHeads: [...currentData.expenseHeads, ...newExpenseHeads],
+    expenseEntries: [...currentData.expenseEntries, ...newExpenseEntries],
+  };
+  
+  // Calculate statistics
+  const stats = {
+    addedHeads: newExpenseHeads.length,
+    addedEntries: newExpenseEntries.length,
+    skippedHeads: importedData.expenseHeads.length - newExpenseHeads.length,
+    skippedEntries: importedData.expenseEntries.length - newExpenseEntries.length,
+  };
+  
+  return { mergedData, stats };
+};
+

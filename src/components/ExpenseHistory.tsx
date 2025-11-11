@@ -97,7 +97,7 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
                 <strong>Category:</strong> {expenseHead.category}
               </Typography>
               <Typography variant="body2">
-                <strong>Total Amount:</strong> ${expenseHead.totalAmount.toFixed(2)}
+                <strong>Total Amount:</strong> ₹{expenseHead.totalAmount.toFixed(2)}
               </Typography>
             </Box>
           )}
@@ -176,7 +176,7 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
                       </Box>
                     ) : (
                       <Typography variant="h6" color="primary">
-                        ${entry.amountPaid.toFixed(2)}
+                        ₹{entry.amountPaid.toFixed(2)}
                       </Typography>
                     )}
                   </ListItem>

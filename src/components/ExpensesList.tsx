@@ -142,7 +142,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                         Total Amount
                       </Typography>
                       <Typography variant="body2" fontWeight="bold">
-                        ${expense.totalAmount.toFixed(2)}
+                        ₹{expense.totalAmount.toFixed(2)}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -150,7 +150,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                         Amount Paid
                       </Typography>
                       <Typography variant="body2" color="success.main" fontWeight="bold">
-                        ${expense.amountPaid.toFixed(2)}
+                        ₹{expense.amountPaid.toFixed(2)}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -158,7 +158,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                         Amount Due
                       </Typography>
                       <Typography variant="body2" color="error.main" fontWeight="bold">
-                        ${expense.amountDue.toFixed(2)}
+                        ₹{expense.amountDue.toFixed(2)}
                       </Typography>
                     </Box>
                   </Box>

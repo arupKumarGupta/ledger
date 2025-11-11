@@ -102,7 +102,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
     } else if (selectedExpenseHead) {
       const amountDue = getAmountDue(selectedExpenseHead.id);
       if (amount > amountDue) {
-        newWarning = `Warning: Amount paid (${amount.toFixed(2)}) exceeds remaining amount (${amountDue.toFixed(2)})`;
+        newWarning = `Warning: Amount paid (₹${amount.toFixed(2)}) exceeds remaining amount (₹${amountDue.toFixed(2)})`;
       }
     }
     
@@ -170,8 +170,8 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
 
           {selectedExpenseHead && (
             <Alert severity="info">
-              Total Amount: {selectedExpenseHead.totalAmount.toFixed(2)} | 
-              Remaining: {getAmountDue(selectedExpenseHead.id).toFixed(2)}
+              Total Amount: ₹{selectedExpenseHead.totalAmount.toFixed(2)} | 
+              Remaining: ₹{getAmountDue(selectedExpenseHead.id).toFixed(2)}
             </Alert>
           )}
 

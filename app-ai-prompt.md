@@ -16,6 +16,7 @@ It should have below features
     - there should be 2 icons on top right with labels as Import (with download icon) and Export (with upload icon)
     - on clicking import it should allow to import a json file containing expense data.
     - on export it should export the current data in a json file with a name as expenses-<date>-<time>.json
+    - import should merge with current data if available and ignore the duplicates 
 
 While creating this app use types strictly. and it should be fully responsive and use material ui icons for react. 
 The theme of the app should be based on the system theme. 
