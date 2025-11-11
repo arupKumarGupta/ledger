@@ -106,11 +106,10 @@ function App() {
   };
 
   // Expense Entry operations
-  const handleSaveExpenseEntry = (entry: Omit<ExpenseEntry, 'id' | 'date'>) => {
+  const handleSaveExpenseEntry = (entry: Omit<ExpenseEntry, 'id'>) => {
     const newEntry: ExpenseEntry = {
       ...entry,
       id: Date.now().toString(),
-      date: new Date().toISOString(),
     };
     setData({
       ...data,

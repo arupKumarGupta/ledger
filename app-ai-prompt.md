@@ -7,6 +7,7 @@ It should have below features
     - it should also have a way to add a new expense head using a + button on bottom right. this will basically open the create expense head popup. on creating from here it should be auto selected in create expense page. 
     - it should save the entry along with date and time.
     - it should also have an optional input to upload image and save it as base64 
+    - add optional date and time input while creating expenses. prioritise them if provided else use current 
 3. Expenses List screen to show all expense heads with total amount, amount due. a eye icon button to show history of payments listed in chronological order and a delete icon to delete whole expense head.
     - the history screen should have a way to delete (delete icon) / update the amount paid (click on amount inline) the values inline.
     - The delete icon button to delete whole expense head should show a confirmation modal before deleting.

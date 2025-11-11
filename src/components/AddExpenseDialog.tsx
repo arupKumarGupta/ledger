@@ -20,7 +20,7 @@ interface AddExpenseDialogProps {
   open: boolean;
   onClose: () => void;
   expenseHeads: ExpenseHead[];
-  onSave: (entry: Omit<ExpenseEntry, 'id' | 'date'>) => void;
+  onSave: (entry: Omit<ExpenseEntry, 'id'>) => void;
   onAddExpenseHead: () => void;
   getAmountDue: (expenseHeadId: string) => number;
   preSelectedExpenseHeadId?: string;
@@ -37,6 +37,8 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
 }) => {
   const [selectedExpenseHead, setSelectedExpenseHead] = useState<ExpenseHead | null>(null);
   const [amountPaid, setAmountPaid] = useState('');
+  const [customDate, setCustomDate] = useState('');
+  const [customTime, setCustomTime] = useState('');
   const [image, setImage] = useState<string>('');
   const [imageFileName, setImageFileName] = useState<string>('');
   const [errors, setErrors] = useState<{ expenseHead?: string; amountPaid?: string }>({});
@@ -54,6 +56,8 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
   const handleClose = () => {
     setSelectedExpenseHead(null);
     setAmountPaid('');
+    setCustomDate('');
+    setCustomTime('');
     setImage('');
     setImageFileName('');
     setErrors({});
@@ -109,9 +113,20 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
 
   const handleSave = () => {
     if (validate() && selectedExpenseHead) {
+      let entryDate: string;
+      
+      // If custom date/time is provided, use it; otherwise use current date/time
+      if (customDate) {
+        const timeToUse = customTime || '00:00';
+        entryDate = new Date(`${customDate}T${timeToUse}`).toISOString();
+      } else {
+        entryDate = new Date().toISOString();
+      }
+      
       onSave({
         expenseHeadId: selectedExpenseHead.id,
         amountPaid: parseFloat(amountPaid),
+        date: entryDate,
         image: image || undefined,
       });
       handleClose();
@@ -175,6 +190,27 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
           />
 
           {warning && <Alert severity="warning">{warning}</Alert>}
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              label="Date (Optional)"
+              type="date"
+              value={customDate}
+              onChange={(e) => setCustomDate(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              helperText="Leave empty to use current date"
+            />
+            <TextField
+              label="Time (Optional)"
+              type="time"
+              value={customTime}
+              onChange={(e) => setCustomTime(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              helperText="Leave empty to use current time"
+            />
+          </Box>
 
           <Box>
             <Button
