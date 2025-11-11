@@ -2,6 +2,8 @@
 
 A modern, responsive expense tracking and ledger application built with React, TypeScript, and Material-UI. The app follows a mobile-first approach and adapts seamlessly to all screen sizes.
 
+🚀 **Live Demo:** [https://arupkumargupta.github.io/ledger/](https://arupkumargupta.github.io/ledger/)
+
 ## Features
 
 ### 1. Expense Head Management
@@ -72,6 +74,21 @@ yarn build
 ```bash
 yarn preview
 ```
+
+## Deployment
+
+This app is configured for automatic deployment to GitHub Pages.
+
+### Quick Deploy:
+```bash
+git add .
+git commit -m "Deploy to GitHub Pages"
+git push origin main
+```
+
+The app will be automatically deployed via GitHub Actions to: https://arupkumargupta.github.io/ledger/
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Usage Guide
 
