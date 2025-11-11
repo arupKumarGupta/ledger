@@ -1,0 +1,5 @@
+/* App-specific styles - Most styling is handled by Material-UI */
+
+* {
+  box-sizing: border-box;
+}
