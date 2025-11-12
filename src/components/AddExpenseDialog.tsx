@@ -134,8 +134,19 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Add Expense Entry</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          m: { xs: 1, sm: 2 },
+          maxHeight: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 64px)' },
+        }
+      }}
+    >
+      <DialogTitle sx={{ pb: 1 }}>Add Expense Entry</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
@@ -153,6 +164,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
                   label="Expense Head"
                   error={!!errors.expenseHead}
                   helperText={errors.expenseHead}
+                  size="medium"
                 />
               )}
               fullWidth
@@ -169,9 +181,9 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
           </Box>
 
           {selectedExpenseHead && (
-            <Alert severity="info">
-              Total Amount: ₹{selectedExpenseHead.totalAmount.toFixed(2)} | 
-              Remaining: ₹{getAmountDue(selectedExpenseHead.id).toFixed(2)}
+            <Alert severity="info" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+              Total: ₹{selectedExpenseHead.totalAmount.toLocaleString()} | 
+              Remaining: ₹{getAmountDue(selectedExpenseHead.id).toLocaleString()}
             </Alert>
           )}
 
@@ -186,18 +198,20 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
             error={!!errors.amountPaid}
             helperText={errors.amountPaid}
             fullWidth
+            size="medium"
             inputProps={{ step: '0.01', min: '0' }}
           />
 
-          {warning && <Alert severity="warning">{warning}</Alert>}
+          {warning && <Alert severity="warning" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>{warning}</Alert>}
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
             <TextField
               label="Date (Optional)"
               type="date"
               value={customDate}
               onChange={(e) => setCustomDate(e.target.value)}
               fullWidth
+              size="medium"
               InputLabelProps={{ shrink: true }}
               helperText="Leave empty to use current date"
             />
@@ -207,6 +221,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               value={customTime}
               onChange={(e) => setCustomTime(e.target.value)}
               fullWidth
+              size="medium"
               InputLabelProps={{ shrink: true }}
               helperText="Leave empty to use current time"
             />
@@ -218,6 +233,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               variant="outlined"
               startIcon={<UploadIcon />}
               fullWidth
+              size="large"
             >
               Upload Image (Optional)
               <input
@@ -229,7 +245,7 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
             </Button>
             {imageFileName && (
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, gap: 1 }}>
-                <Typography variant="body2" sx={{ flex: 1 }}>
+                <Typography variant="body2" sx={{ flex: 1, wordBreak: 'break-word' }}>
                   {imageFileName}
                 </Typography>
                 <IconButton size="small" onClick={handleRemoveImage}>
@@ -240,9 +256,9 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
           </Box>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained" color="primary">
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={handleClose} size="large">Cancel</Button>
+        <Button onClick={handleSave} variant="contained" color="primary" size="large">
           Save
         </Button>
       </DialogActions>

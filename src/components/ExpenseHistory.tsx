@@ -79,10 +79,21 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">
+      <Dialog 
+        open={open} 
+        onClose={onClose} 
+        maxWidth="sm" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            m: { xs: 1, sm: 2 },
+            maxHeight: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 64px)' },
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' }, wordBreak: 'break-word', flex: 1 }}>
               {expenseHead?.name} - Payment History
             </Typography>
             <IconButton onClick={onClose} size="small">
@@ -92,12 +103,12 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
         </DialogTitle>
         <DialogContent>
           {expenseHead && (
-            <Box sx={{ mb: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-              <Typography variant="body2">
+            <Box sx={{ mb: 2, p: { xs: 1.5, sm: 2 }, bgcolor: 'background.default', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                 <strong>Category:</strong> {expenseHead.category}
               </Typography>
-              <Typography variant="body2">
-                <strong>Total Amount:</strong> ₹{expenseHead.totalAmount.toFixed(2)}
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                <strong>Total Amount:</strong> ₹{expenseHead.totalAmount.toLocaleString()}
               </Typography>
             </Box>
           )}
@@ -107,7 +118,7 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
               No payment entries yet
             </Typography>
           ) : (
-            <List>
+            <List sx={{ px: { xs: 0, sm: 1 } }}>
               {sortedEntries.map((entry, index) => (
                 <React.Fragment key={entry.id}>
                   {index > 0 && <Divider />}
@@ -116,19 +127,21 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'stretch',
-                      py: 2,
+                      py: { xs: 1.5, sm: 2 },
+                      px: { xs: 1, sm: 2 },
                     }}
                   >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 1 }}>
-                      <Typography variant="body2" color="text.secondary">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mb: 1, gap: 1 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                         {formatDate(entry.date)}
                       </Typography>
-                      <Box>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
                         {entry.image && (
                           <IconButton
                             size="small"
                             onClick={() => setViewingImage(entry.image!)}
                             title="View image"
+                            sx={{ p: { xs: 0.5, sm: 1 } }}
                           >
                             <ImageIcon fontSize="small" />
                           </IconButton>
@@ -138,6 +151,7 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
                           onClick={() => handleEditClick(entry)}
                           disabled={editingId === entry.id}
                           title="Edit amount"
+                          sx={{ p: { xs: 0.5, sm: 1 } }}
                         >
                           <EditIcon fontSize="small" />
                         </IconButton>
@@ -146,6 +160,7 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
                           color="error"
                           onClick={() => onDeleteEntry(entry.id)}
                           title="Delete entry"
+                          sx={{ p: { xs: 0.5, sm: 1 } }}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
@@ -175,8 +190,8 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
                         </IconButton>
                       </Box>
                     ) : (
-                      <Typography variant="h6" color="primary">
-                        ₹{entry.amountPaid.toFixed(2)}
+                      <Typography variant="h6" color="primary" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                        ₹{entry.amountPaid.toLocaleString()}
                       </Typography>
                     )}
                   </ListItem>
@@ -193,8 +208,14 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
         onClose={() => setViewingImage(null)}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            m: { xs: 1, sm: 2 },
+            maxHeight: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 64px)' },
+          }
+        }}
       >
-        <DialogTitle>
+        <DialogTitle sx={{ pb: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h6">Receipt Image</Typography>
             <IconButton onClick={() => setViewingImage(null)} size="small">
@@ -204,11 +225,11 @@ const ExpenseHistory: React.FC<ExpenseHistoryProps> = ({
         </DialogTitle>
         <DialogContent>
           {viewingImage && (
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: { xs: 1, sm: 2 } }}>
               <img
                 src={viewingImage}
                 alt="Receipt"
-                style={{ maxWidth: '100%', height: 'auto' }}
+                style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }}
               />
             </Box>
           )}

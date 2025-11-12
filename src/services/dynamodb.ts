@@ -51,7 +51,11 @@ const initClient = () => {
       credentials, // Temporary credentials from Cognito
     });
 
-    dynamoClient = DynamoDBDocumentClient.from(client);
+    dynamoClient = DynamoDBDocumentClient.from(client, {
+      marshallOptions: {
+        removeUndefinedValues: true, // Remove undefined values (required for optional fields)
+      },
+    });
     console.info('✅ DynamoDB client initialized with Cognito credentials');
     return dynamoClient;
   } catch (error) {
@@ -170,6 +174,41 @@ export const getLastSyncTime = async (): Promise<string | null> => {
   } catch (error) {
     console.error('Error getting last sync time:', error);
     return null;
+  }
+};
+
+/**
+ * Clear all data from DynamoDB (DESTRUCTIVE!)
+ * This deletes the entire expense-data item from the table
+ */
+export const clearAllCloudData = async (): Promise<SyncResult> => {
+  const client = initClient();
+  
+  if (!client) {
+    return { success: false, error: 'DynamoDB not configured' };
+  }
+
+  try {
+    const command = new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        [PARTITION_KEY]: 'expense-data',
+      },
+    });
+
+    await client.send(command);
+    
+    console.warn('⚠️ All cloud data has been deleted from DynamoDB');
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    console.error('Error clearing cloud data:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to clear cloud data',
+    };
   }
 };
 

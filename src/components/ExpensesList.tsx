@@ -12,23 +12,33 @@ import {
   DialogActions,
   Button,
   Chip,
+  TextField,
 } from '@mui/material';
-import { Visibility as VisibilityIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { 
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Check as CheckIcon,
+  Close as CloseIcon,
+} from '@mui/icons-material';
 import { ExpenseWithStats } from '../types';
 
 interface ExpensesListProps {
   expenses: ExpenseWithStats[];
   onViewHistory: (expenseId: string) => void;
   onDeleteExpense: (expenseId: string) => void;
+  onUpdateExpenseHead: (expenseHeadId: string, newTotalAmount: number) => void;
 }
 
 const ExpensesList: React.FC<ExpensesListProps> = ({
   expenses,
   onViewHistory,
   onDeleteExpense,
+  onUpdateExpenseHead,
 }) => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [expenseToDelete, setExpenseToDelete] = useState<ExpenseWithStats | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editAmount, setEditAmount] = useState<string>('');
 
   const handleDeleteClick = (expense: ExpenseWithStats) => {
     setExpenseToDelete(expense);
@@ -46,6 +56,25 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
   const handleCancelDelete = () => {
     setDeleteConfirmOpen(false);
     setExpenseToDelete(null);
+  };
+
+  const handleEditClick = (expense: ExpenseWithStats) => {
+    setEditingId(expense.id);
+    setEditAmount(expense.totalAmount.toString());
+  };
+
+  const handleSaveEdit = (expenseHeadId: string) => {
+    const amount = parseFloat(editAmount);
+    if (!isNaN(amount) && amount > 0) {
+      onUpdateExpenseHead(expenseHeadId, amount);
+      setEditingId(null);
+      setEditAmount('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditAmount('');
   };
 
   const getProgressPercentage = (expense: ExpenseWithStats): number => {
@@ -97,14 +126,17 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
           return (
             <Box key={expense.id}>
               <Card
+                onClick={() => onViewHistory(expense.id)}
                 sx={{
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
+                  cursor: 'pointer',
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-4px)',
                     boxShadow: 6,
+                    bgcolor: 'action.hover',
                   },
                 }}
               >
@@ -116,19 +148,26 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                       </Typography>
                       <Chip label={expense.category} size="small" color="primary" variant="outlined" />
                     </Box>
-                    <Box>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
                       <IconButton
                         size="small"
-                        onClick={() => onViewHistory(expense.id)}
-                        title="View history"
-                        color="primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(expense);
+                        }}
+                        disabled={editingId === expense.id}
+                        title="Edit total amount"
+                        color="info"
                       >
-                        <VisibilityIcon />
+                        <EditIcon />
                       </IconButton>
                       <IconButton
                         size="small"
                         color="error"
-                        onClick={() => handleDeleteClick(expense)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(expense);
+                        }}
                         title="Delete expense head"
                       >
                         <DeleteIcon />
@@ -137,13 +176,49 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                   </Box>
 
                   <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5, alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
                         Total Amount
                       </Typography>
-                      <Typography variant="body2" fontWeight="bold">
-                        ₹{expense.totalAmount.toFixed(2)}
-                      </Typography>
+                      {editingId === expense.id ? (
+                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                          <TextField
+                            type="number"
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                            size="small"
+                            inputProps={{ step: '0.01', min: '0' }}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                            sx={{ width: '120px' }}
+                          />
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSaveEdit(expense.id);
+                            }}
+                            title="Save"
+                          >
+                            <CheckIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton 
+                            size="small" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelEdit();
+                            }}
+                            title="Cancel"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ) : (
+                        <Typography variant="body2" fontWeight="bold">
+                          ₹{expense.totalAmount.toLocaleString()}
+                        </Typography>
+                      )}
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                       <Typography variant="body2" color="text.secondary">

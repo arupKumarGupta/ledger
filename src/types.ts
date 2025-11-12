@@ -1,5 +1,15 @@
+export interface Event {
+  id: string;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  createdAt: string;
+}
+
 export interface ExpenseHead {
   id: string;
+  eventId: string; // Links to Event
   name: string;
   category: string;
   totalAmount: number;
@@ -15,6 +25,7 @@ export interface ExpenseEntry {
 }
 
 export interface ExpenseData {
+  events: Event[];
   expenseHeads: ExpenseHead[];
   expenseEntries: ExpenseEntry[];
 }
@@ -22,5 +33,12 @@ export interface ExpenseData {
 export interface ExpenseWithStats extends ExpenseHead {
   amountPaid: number;
   amountDue: number;
+}
+
+export interface EventWithStats extends Event {
+  totalExpenseHeads: number;
+  totalBudget: number;
+  totalSpent: number;
+  totalDue: number;
 }
 
