@@ -33,6 +33,12 @@ jobs:
 
       - name: Build
         run: yarn build
+        env:
+          VITE_AWS_REGION: ${{ secrets.VITE_AWS_REGION }}
+          VITE_AWS_ACCESS_KEY_ID: ${{ secrets.VITE_AWS_ACCESS_KEY_ID }}
+          VITE_AWS_SECRET_ACCESS_KEY: ${{ secrets.VITE_AWS_SECRET_ACCESS_KEY }}
+          VITE_DYNAMODB_TABLE_NAME: ${{ secrets.VITE_DYNAMODB_TABLE_NAME }}
+          VITE_DYNAMODB_PARTITION_KEY: ${{ secrets.VITE_DYNAMODB_PARTITION_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

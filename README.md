@@ -4,6 +4,8 @@ A modern, responsive expense tracking and ledger application built with React, T
 
 🚀 **Live Demo:** [https://arupkumargupta.github.io/ledger/](https://arupkumargupta.github.io/ledger/)
 
+📚 **Documentation**: See [DOCS_INDEX.md](DOCS_INDEX.md) for complete setup guides and documentation index
+
 ## Features
 
 ### 1. Expense Head Management
@@ -137,6 +139,13 @@ git push origin main
 ```
 
 The app will be automatically deployed via GitHub Actions to: https://arupkumargupta.github.io/ledger/
+
+### GitHub Pages with Cloud Sync
+
+To enable DynamoDB cloud sync on GitHub Pages:
+1. **Set up GitHub Secrets**: Follow [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)
+2. Push to main branch
+3. GitHub Actions will build with your AWS credentials embedded
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
