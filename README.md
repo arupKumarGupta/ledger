@@ -27,8 +27,10 @@ A modern, responsive expense tracking and ledger application built with React, T
 - View uploaded receipt images
 
 ### 4. Data Management
+- **Cloud Sync**: Optional AWS DynamoDB integration for automatic cloud backup
 - **Import/Export**: Full data import/export as JSON
-- All data stored in localStorage (or mobile storage equivalent)
+- **Hybrid Storage**: localStorage for offline use + DynamoDB for cloud sync
+- **Smart Merge**: Import merges data without duplicates
 - Export creates timestamped JSON files (expenses-YYYY-MM-DD-HH-MM-SS.json)
 - Import validates data structure before applying
 
@@ -45,13 +47,16 @@ A modern, responsive expense tracking and ledger application built with React, T
 - **React** with TypeScript for type safety
 - **Material-UI (MUI)** for UI components
 - **Vite** for fast development and building
-- **localStorage** for data persistence
+- **localStorage** for offline data persistence
+- **AWS DynamoDB** (optional) for cloud sync and backup
+- **AWS SDK v3** for DynamoDB integration
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ (for this version)
+- Node.js 18+
 - Yarn package manager
+- AWS Account (optional, for cloud sync - free tier available)
 
 ### Installation
 
@@ -74,6 +79,51 @@ yarn build
 ```bash
 yarn preview
 ```
+
+## Cloud Sync Setup (Optional)
+
+Enable automatic cloud backup with AWS DynamoDB (free tier):
+
+1. **Quick Setup**: Follow [AWS_SETUP.md](AWS_SETUP.md) for detailed instructions
+
+2. **Create `.env` file** in the project root:
+   ```bash
+   touch .env
+   ```
+
+3. **Add AWS credentials** to `.env`:
+   ```env
+   # AWS Region - Your DynamoDB table region
+   VITE_AWS_REGION=ap-south-1
+   
+   # AWS Credentials - Get from AWS IAM Console
+   VITE_AWS_ACCESS_KEY_ID=your_access_key_here
+   VITE_AWS_SECRET_ACCESS_KEY=your_secret_key_here
+   
+   # DynamoDB Configuration
+   VITE_DYNAMODB_TABLE_NAME=expense-manager
+   VITE_DYNAMODB_PARTITION_KEY=expense-manager-partition-key-1209
+   ```
+
+4. **Get AWS Credentials**:
+   - Go to AWS IAM Console → Users
+   - Create new user or use existing one
+   - Attach policy: `AmazonDynamoDBFullAccess` or create custom policy with:
+     - `dynamodb:PutItem`
+     - `dynamodb:GetItem`
+     - `dynamodb:UpdateItem`
+     - `dynamodb:DeleteItem`
+   - Generate Access Keys
+
+5. **Restart the app** and you'll see a cloud icon (☁️) in the toolbar!
+
+### Benefits:
+- ✅ **Automatic backup** to AWS DynamoDB
+- ✅ **Multi-device sync** - access your data anywhere
+- ✅ **Forever free** with AWS free tier (25 GB storage)
+- ✅ **Offline-first** - works without internet, syncs when available
+
+**Note**: The app works perfectly without AWS setup (using localStorage only).
 
 ## Deployment
 

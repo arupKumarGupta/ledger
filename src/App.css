@@ -3,3 +3,17 @@
 * {
   box-sizing: border-box;
 }
+
+/* Rotating animation for sync icon */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  animation: rotate 1s linear infinite;
+}

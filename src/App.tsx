@@ -24,13 +24,17 @@ import {
   FileUpload as FileUploadIcon,
   FileDownload as FileDownloadIcon,
   AccountBalance as AccountBalanceIcon,
+  Cloud as CloudIcon,
+  CloudOff as CloudOffIcon,
+  Sync as SyncIcon,
 } from '@mui/icons-material';
 import ExpenseHeadDialog from './components/ExpenseHeadDialog';
 import AddExpenseDialog from './components/AddExpenseDialog';
 import ExpensesList from './components/ExpensesList';
 import ExpenseHistory from './components/ExpenseHistory';
 import { ExpenseHead, ExpenseEntry, ExpenseData, ExpenseWithStats } from './types';
-import { loadData, saveData, exportDataToJSON, importDataFromJSON, mergeImportedData } from './utils/storage';
+import { exportDataToJSON, importDataFromJSON, mergeImportedData } from './utils/storage';
+import { saveDataWithSync, loadDataWithSync, getSyncStatus, syncToCloud, initSyncStatus } from './utils/cloudSync';
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -58,16 +62,37 @@ function App() {
     severity: 'success',
   });
   const [currentView, setCurrentView] = useState<'expenses' | 'add'>('expenses');
+  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Load data on mount
+  // Initialize and load data on mount
   useEffect(() => {
-    const loadedData = loadData();
-    setData(loadedData);
+    const initData = async () => {
+      setIsSyncing(true);
+      await initSyncStatus();
+      const syncStatus = getSyncStatus();
+      setCloudSyncEnabled(syncStatus.enabled);
+      
+      const loadedData = await loadDataWithSync();
+      setData(loadedData);
+      setIsSyncing(false);
+      
+      if (syncStatus.enabled && syncStatus.lastSync) {
+        const lastSyncDate = new Date(syncStatus.lastSync).toLocaleString();
+        showSnackbar(`Synced with cloud (${lastSyncDate})`, 'info');
+      } else if (!syncStatus.enabled) {
+        showSnackbar('Using offline mode (localStorage only)', 'info');
+      }
+    };
+    
+    initData();
   }, []);
 
-  // Save data whenever it changes
+  // Save data whenever it changes (with cloud sync)
   useEffect(() => {
-    saveData(data);
+    if (data.expenseHeads.length > 0 || data.expenseEntries.length > 0) {
+      saveDataWithSync(data);
+    }
   }, [data]);
 
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' = 'success') => {
@@ -170,6 +195,27 @@ function App() {
     showSnackbar('Data exported successfully');
   };
 
+  // Manual cloud sync
+  const handleManualSync = async () => {
+    if (!cloudSyncEnabled) {
+      showSnackbar('Cloud sync not configured. Add .env file with AWS credentials.', 'info');
+      return;
+    }
+
+    setIsSyncing(true);
+    const result = await syncToCloud(data);
+    
+    if (result.success) {
+      const syncStatus = getSyncStatus();
+      const lastSyncDate = syncStatus.lastSync ? new Date(syncStatus.lastSync).toLocaleString() : 'now';
+      showSnackbar(`Synced to cloud successfully (${lastSyncDate})`, 'success');
+    } else {
+      showSnackbar(`Sync failed: ${result.error}`, 'error');
+    }
+    
+    setIsSyncing(false);
+  };
+
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -239,7 +285,23 @@ function App() {
             </Typography>
             
             {!isMobile && (
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                {cloudSyncEnabled && (
+                  <Tooltip title={isSyncing ? 'Syncing...' : 'Sync to Cloud'}>
+                    <IconButton 
+                      color="inherit" 
+                      onClick={handleManualSync}
+                      disabled={isSyncing}
+                    >
+                      {isSyncing ? <SyncIcon className="rotating" /> : <CloudIcon />}
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {!cloudSyncEnabled && (
+                  <Tooltip title="Cloud sync disabled (offline mode)">
+                    <CloudOffIcon sx={{ opacity: 0.5, mr: 1 }} />
+                  </Tooltip>
+                )}
                 <Tooltip title="Import Data">
                   <IconButton color="inherit" component="label">
                     <FileDownloadIcon />
