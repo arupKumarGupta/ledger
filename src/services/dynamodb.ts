@@ -7,22 +7,28 @@ import {
   DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { ExpenseData } from '../types';
+import { getCognitoCredentials, isCognitoConfigured } from './cognito';
 
-// Check if AWS credentials are configured
-const isConfigured = () => {
-  return !!(
-    import.meta.env.VITE_AWS_ACCESS_KEY_ID &&
-    import.meta.env.VITE_AWS_SECRET_ACCESS_KEY &&
-    import.meta.env.VITE_AWS_REGION
-  );
-};
+/**
+ * ✅ SECURE Cloud Sync with AWS Cognito
+ * 
+ * This module uses AWS Cognito Identity Pools to get temporary credentials.
+ * NO long-term credentials are embedded in the code.
+ * 
+ * How it works:
+ * 1. Cognito Identity Pool provides temporary AWS credentials
+ * 2. Credentials are scoped by IAM policies (only access to specific DynamoDB table)
+ * 3. Credentials automatically expire and refresh
+ * 4. Safe to deploy to GitHub Pages or any static host
+ */
 
 let dynamoClient: DynamoDBDocumentClient | null = null;
 
-// Initialize DynamoDB client
+// Initialize DynamoDB client with Cognito credentials
 const initClient = () => {
-  if (!isConfigured()) {
-    console.warn('AWS DynamoDB not configured. Using localStorage only.');
+  if (!isCognitoConfigured()) {
+    console.warn('AWS Cognito not configured. Using localStorage only.');
+    console.info('To enable cloud sync, set VITE_AWS_REGION and VITE_COGNITO_IDENTITY_POOL_ID');
     return null;
   }
 
@@ -31,15 +37,22 @@ const initClient = () => {
   }
 
   try {
+    const cognitoCredentials = getCognitoCredentials();
+    
+    if (!cognitoCredentials) {
+      console.error('Failed to get Cognito credentials');
+      return null;
+    }
+
+    const { credentials, region } = cognitoCredentials;
+
     const client = new DynamoDBClient({
-      region: import.meta.env.VITE_AWS_REGION,
-      credentials: {
-        accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
-        secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY,
-      },
+      region,
+      credentials, // Temporary credentials from Cognito
     });
 
     dynamoClient = DynamoDBDocumentClient.from(client);
+    console.info('✅ DynamoDB client initialized with Cognito credentials');
     return dynamoClient;
   } catch (error) {
     console.error('Failed to initialize DynamoDB client:', error);
@@ -130,7 +143,7 @@ export const loadFromCloud = async (): Promise<{ data: ExpenseData | null; error
  * Check if DynamoDB is available and configured
  */
 export const isCloudEnabled = (): boolean => {
-  return isConfigured();
+  return isCognitoConfigured();
 };
 
 /**

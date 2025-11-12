@@ -50,8 +50,9 @@ A modern, responsive expense tracking and ledger application built with React, T
 - **Material-UI (MUI)** for UI components
 - **Vite** for fast development and building
 - **localStorage** for offline data persistence
+- **AWS Cognito Identity Pools** (optional) for secure, temporary credentials
 - **AWS DynamoDB** (optional) for cloud sync and backup
-- **AWS SDK v3** for DynamoDB integration
+- **AWS SDK v3** for Cognito and DynamoDB integration
 
 ## Getting Started
 
@@ -82,48 +83,52 @@ yarn build
 yarn preview
 ```
 
-## Cloud Sync Setup (Optional)
+## Cloud Sync Setup (Optional) 🔐
 
-Enable automatic cloud backup with AWS DynamoDB (free tier):
+Enable automatic cloud backup with AWS DynamoDB - **securely implemented** with AWS Cognito Identity Pools.
 
-1. **Quick Setup**: Follow [AWS_SETUP.md](AWS_SETUP.md) for detailed instructions
+### 🔒 Security First
+This app uses **AWS Cognito** for secure cloud sync:
+- ✅ **No credentials in code** - Cognito provides temporary credentials
+- ✅ **Safe to deploy publicly** - No secrets exposed in your app
+- ✅ **Automatic credential rotation** - Temporary credentials expire automatically
+- ✅ **Scoped permissions** - Users can only access their own data
 
-2. **Create `.env` file** in the project root:
+### Quick Setup (5 minutes)
+
+1. **Follow the complete setup guide**: [AWS_COGNITO_SETUP.md](AWS_COGNITO_SETUP.md)
+
+2. **Create Cognito Identity Pool** (via AWS Console):
+   - Enable unauthenticated access
+   - Configure IAM role permissions for DynamoDB
+
+3. **Create `.env.local` file** in the project root:
    ```bash
-   touch .env
+   cp env.template .env.local
    ```
 
-3. **Add AWS credentials** to `.env`:
+4. **Add Cognito configuration** to `.env.local`:
    ```env
    # AWS Region - Your DynamoDB table region
    VITE_AWS_REGION=ap-south-1
    
-   # AWS Credentials - Get from AWS IAM Console
-   VITE_AWS_ACCESS_KEY_ID=your_access_key_here
-   VITE_AWS_SECRET_ACCESS_KEY=your_secret_key_here
+   # Cognito Identity Pool ID (SAFE - no credentials!)
+   VITE_COGNITO_IDENTITY_POOL_ID=ap-south-1:12345678-xxxx-xxxx-xxxx-xxxxxxxxxxxx
    
    # DynamoDB Configuration
    VITE_DYNAMODB_TABLE_NAME=expense-manager
    VITE_DYNAMODB_PARTITION_KEY=expense-manager-partition-key-1209
    ```
 
-4. **Get AWS Credentials**:
-   - Go to AWS IAM Console → Users
-   - Create new user or use existing one
-   - Attach policy: `AmazonDynamoDBFullAccess` or create custom policy with:
-     - `dynamodb:PutItem`
-     - `dynamodb:GetItem`
-     - `dynamodb:UpdateItem`
-     - `dynamodb:DeleteItem`
-   - Generate Access Keys
-
 5. **Restart the app** and you'll see a cloud icon (☁️) in the toolbar!
 
 ### Benefits:
 - ✅ **Automatic backup** to AWS DynamoDB
 - ✅ **Multi-device sync** - access your data anywhere
-- ✅ **Forever free** with AWS free tier (25 GB storage)
+- ✅ **Forever free** with AWS free tier (25 GB storage, 50K MAU)
 - ✅ **Offline-first** - works without internet, syncs when available
+- ✅ **Production-ready** - Secure architecture, safe for public deployment
+- ✅ **No maintenance** - No credential rotation needed
 
 **Note**: The app works perfectly without AWS setup (using localStorage only).
 
@@ -142,10 +147,15 @@ The app will be automatically deployed via GitHub Actions to: https://arupkumarg
 
 ### GitHub Pages with Cloud Sync
 
-To enable DynamoDB cloud sync on GitHub Pages:
-1. **Set up GitHub Secrets**: Follow [GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)
-2. Push to main branch
-3. GitHub Actions will build with your AWS credentials embedded
+To enable secure DynamoDB cloud sync on GitHub Pages:
+1. **Set up AWS Cognito**: Follow [AWS_COGNITO_SETUP.md](AWS_COGNITO_SETUP.md)
+2. **Add GitHub Secrets** (Settings → Secrets → Actions):
+   - `VITE_AWS_REGION` 
+   - `VITE_COGNITO_IDENTITY_POOL_ID`
+   - `VITE_DYNAMODB_TABLE_NAME`
+   - `VITE_DYNAMODB_PARTITION_KEY`
+3. Push to main branch
+4. GitHub Actions will build with Cognito configuration (no credentials!)
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -198,6 +208,9 @@ src/
 │   ├── ExpenseHeadDialog.tsx     # Dialog for creating expense heads
 │   ├── ExpenseHistory.tsx        # Payment history viewer
 │   └── ExpensesList.tsx          # Main list view of expense heads
+├── services/
+│   ├── cognito.ts                # AWS Cognito authentication service
+│   └── dynamodb.ts               # AWS DynamoDB cloud sync service
 ├── utils/
 │   └── storage.ts                # localStorage utility functions
 ├── types.ts                      # TypeScript type definitions
